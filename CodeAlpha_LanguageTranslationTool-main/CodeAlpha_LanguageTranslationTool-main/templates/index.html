@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeAlpha Language Translation Tool</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <main class="app-shell">
+        <section class="hero-band">
+            <div class="hero-copy">
+                <p class="eyebrow">CodeAlpha AI Internship Project</p>
+                <h1>Language Translation Tool</h1>
+                <p class="hero-text">
+                    A localhost web application for fast multilingual translation with copy,
+                    voice playback, swap languages, and translation history.
+                </p>
+            </div>
+            <div class="status-strip" aria-label="Project highlights">
+                <span>Flask Backend</span>
+                <span>Google Translation</span>
+                <span>Responsive UI</span>
+            </div>
+        </section>
+
+        <section class="translator-layout">
+            <div class="translator-panel">
+                <div class="toolbar">
+                    <div>
+                        <p class="section-kicker">Translate Console</p>
+                        <h2>Write, translate, listen</h2>
+                    </div>
+                    <button class="ghost-button" id="clearBtn" type="button">Clear</button>
+                </div>
+
+                <div class="language-row">
+                    <label class="select-block">
+                        <span>Source Language</span>
+                        <select id="sourceLanguage">
+                            {% for group in language_groups %}
+                                <optgroup label="{{ group['title'] }}">
+                                    {% for language in group['items'] %}
+                                        <option value="{{ language.code }}" {% if language.code == "auto" %}selected{% endif %}>
+                                            {{ language.flag }} - {{ language.name }}
+                                        </option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endfor %}
+                        </select>
+                    </label>
+
+                    <button class="swap-button" id="swapBtn" type="button" aria-label="Swap languages">
+                        ⇄
+                    </button>
+
+                    <label class="select-block">
+                        <span>Target Language</span>
+                        <select id="targetLanguage">
+                            {% for language in language_groups[1]['items'] %}
+                                <option value="{{ language.code }}" {% if language.code == "fr" %}selected{% endif %}>
+                                    {{ language.flag }} - {{ language.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                </div>
+
+                <div class="text-grid">
+                    <label class="text-box">
+                        <span>Your Text</span>
+                        <textarea id="inputText" maxlength="5000" placeholder="Example: Hello, I am building a language translation tool for my CodeAlpha AI internship."></textarea>
+                        <small><span id="charCount">0</span>/5000 characters</small>
+                    </label>
+
+                    <div class="text-box output-box">
+                        <span>Translated Text</span>
+                        <div id="outputText" class="output-placeholder">Your translation will appear here.</div>
+                        <small id="resultMeta">Ready</small>
+                    </div>
+                </div>
+
+                <div class="actions-row">
+                    <button class="primary-button" id="translateBtn" type="button">
+                        <span id="buttonText">Translate Now</span>
+                        <span class="loader" id="loader" hidden></span>
+                    </button>
+                    <button class="secondary-button" id="copyBtn" type="button">Copy Result</button>
+                    <button class="secondary-button" id="speakBtn" type="button">Listen</button>
+                </div>
+
+                <p class="message" id="messageBox" role="status"></p>
+            </div>
+
+            <aside class="insight-panel">
+                <div class="metric-card">
+                    <span class="metric-label">Current Mode</span>
+                    <strong>Auto Detect</strong>
+                    <p>Let the backend detect the source language automatically.</p>
+                </div>
+                <div class="metric-card accent">
+                    <span class="metric-label">Feature Stack</span>
+                    <strong>API + UI</strong>
+                    <p>Translation request, JSON response, and browser voice playback.</p>
+                </div>
+                <div class="history-card">
+                    <div class="history-head">
+                        <h3>Recent Translations</h3>
+                        <button id="clearHistoryBtn" type="button">Clear</button>
+                    </div>
+                    <div id="historyList" class="history-list">
+                        <p class="empty-history">No translations yet.</p>
+                    </div>
+                </div>
+            </aside>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
