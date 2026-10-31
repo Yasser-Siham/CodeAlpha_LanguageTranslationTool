@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeAlpha Language Translation Tool</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <main class="app-shell">
+        <nav class="app-nav"><div class="brand"><span class="brand-mark">a</span> lingua<span style="color:#849787;font-weight:400">.</span></div><span class="nav-note">CodeAlpha &nbsp;/&nbsp; Language studio</span></nav><section class="hero-band">
+            <div class="hero-copy">
+                <p class="eyebrow">A little less lost in translation</p>
+                <h1>Good words.<br>Across every border.</h1>
+                <p class="hero-text">
+                    Your ideas, in another language. Translate, listen, and connect
+                    with the world — one conversation at a time.
+                </p>
+            </div>
+            <div class="status-strip" aria-label="Project highlights">
+                <span>15 languages</span>
+                <span>Voice playback</span>
+                <span>Made to connect</span>
+            </div>
+        </section>
+
+        <section class="translator-layout">
+            <div class="translator-panel">
+                <div class="toolbar">
+                    <div>
+                        <p class="section-kicker">YOUR WORKSPACE</p>
+                        <h2>Make yourself understood.</h2>
+                    </div>
+                    <button class="ghost-button" id="clearBtn" type="button">Clear</button>
+                </div>
+
+                <div class="language-row">
+                    <label class="select-block">
+                        <span>Source Language</span>
+                        <select id="sourceLanguage">
+                            {% for group in language_groups %}
+                                <optgroup label="{{ group['title'] }}">
+                                    {% for language in group['items'] %}
+                                        <option value="{{ language.code }}" {% if language.code == "auto" %}selected{% endif %}>
+                                            {{ language.flag }} - {{ language.name }}
+                                        </option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endfor %}
+                        </select>
+                    </label>
+
+                    <button class="swap-button" id="swapBtn" type="button" aria-label="Swap languages">
+                        ⇄
+                    </button>
+
+                    <label class="select-block">
+                        <span>Target Language</span>
+                        <select id="targetLanguage">
+                            {% for language in language_groups[1]['items'] %}
+                                <option value="{{ language.code }}" {% if language.code == "fr" %}selected{% endif %}>
+                                    {{ language.flag }} - {{ language.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                </div>
+
+                <div class="text-grid">
+                    <div class="text-box">
+                        <div class="field-heading"><span><label for="inputText">Your Text</label></span><div class="field-tools"><button class="icon-button" id="copyInputBtn" type="button" title="Copy source text" aria-label="Copy source text"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button><button class="icon-button" id="speakInputBtn" type="button" title="Listen to source text" aria-label="Listen to source text"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m11 4-6 5H2v6h3l6 5zM15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
+                        <textarea id="inputText" maxlength="5000" placeholder="Example: Hello, I am building a language translation tool for my CodeAlpha AI internship."></textarea>
+                        <small><span id="charCount">0</span>/5000 characters</small>
+                    </div>
+
+                    <div class="text-box output-box">
+                        <div class="field-heading"><span>Translated Text</span><div class="field-tools"><button class="icon-button" type="button" onclick="copyResult()" title="Copy translation" aria-label="Copy translation"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button><button class="icon-button" type="button" onclick="speakResult()" title="Listen to translation" aria-label="Listen to translation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m11 4-6 5H2v6h3l6 5zM15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
+                        <div id="outputText" class="output-placeholder">Your translation will appear here.</div>
+                        <small id="resultMeta">Ready</small>
+                    </div>
+                </div>
+
+                <div class="actions-row">
+                    <button class="primary-button" id="translateBtn" type="button">
+                        <span id="buttonText">Translate Now</span>
+                        <span class="loader" id="loader" hidden></span>
+                    </button>
+                    <button class="secondary-button" id="copyBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>Copy Result</button>
+                    <button class="secondary-button" id="speakBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m11 4-6 5H2v6h3l6 5zM15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg>Listen</button>
+                </div>
+
+                <p class="message" id="messageBox" role="status"></p>
+            </div>
+
+            <aside class="insight-panel">
+                <div class="metric-card">
+                    <span class="metric-label">SMART TRANSLATION</span>
+                    <strong>Less guessing.<br>More understanding.</strong>
+                    <p>Not sure which language? Let auto-detect find the right starting point.</p>
+                </div>
+                <div class="metric-card accent">
+                    <span class="metric-label">BEYOND WORDS</span>
+                    <strong>A world of<br>possibilities.</strong>
+                    <p>From a simple hello to your next big idea. Find the words that bring you closer.</p>
+                </div>
+                <div class="history-card">
+                    <div class="history-head">
+                        <h3>Recent Translations</h3>
+                        <button id="clearHistoryBtn" type="button">Clear</button>
+                    </div>
+                    <div id="historyList" class="history-list">
+                        <p class="empty-history">No translations yet.</p>
+                    </div>
+                </div>
+            </aside>
+        </section>
+    <footer class="app-footer"><span>Built for curious minds. Made for connection.</span><span>CodeAlpha project &nbsp; · &nbsp; 2026</span></footer></main>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
+
